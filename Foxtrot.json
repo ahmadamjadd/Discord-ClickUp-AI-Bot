@@ -33,12 +33,12 @@
         208,
         0
       ],
-      "id": "4b24efcb-8103-4a30-aa43-7e2e23abb6ae",
+      "id": "5d723f23-e159-4b2e-b4e8-bfeb62e93754",
       "name": "Get row(s) in sheet",
       "credentials": {
         "googleSheetsOAuth2Api": {
-          "id": "KS5PsobcCsZEpXBB",
-          "name": "Foxtrot"
+          "id": "FJcBLXPrGhacOKDs",
+          "name": "Google Sheets account"
         }
       }
     },
@@ -54,12 +54,12 @@
         400,
         0
       ],
-      "id": "e08c77f8-a2f5-4f0f-8f22-b3a05833ba9d",
+      "id": "92fc522f-e99d-4a2d-84a9-ff0818de3f3a",
       "name": "Get a task",
       "credentials": {
         "clickUpApi": {
-          "id": "XjkdMPudcWZjM4HT",
-          "name": "ClickUp account"
+          "id": "7BS4o0KUfCnWFXow",
+          "name": "Foxtrot"
         }
       }
     },
@@ -84,26 +84,29 @@
       "type": "n8n-nodes-base.discord",
       "typeVersion": 2,
       "position": [
-        608,
+        800,
         0
       ],
-      "id": "4675e207-6477-4dba-8a9d-3ec836ba71fb",
+      "id": "7b4b4c15-14a8-4a44-a949-e456fde6d923",
       "name": "Send a message",
       "webhookId": "15def6b8-98a6-4664-88d6-3aa6da0d9c14",
+      "retryOnFail": true,
+      "waitBetweenTries": 5000,
       "credentials": {
         "discordOAuth2Api": {
-          "id": "E22b75nVrUQssPAG",
-          "name": "Foxtrot"
+          "id": "4Eyj9rqeUeON1DHn",
+          "name": "Discord account"
         }
       }
     },
     {
       "parameters": {
-        "authentication": "oAuth2",
         "team": "90182405322",
         "events": [
           "taskCreated",
-          "taskAssigneeUpdated"
+          "taskAssigneeUpdated",
+          "taskTimeEstimateUpdated",
+          "spaceDeleted"
         ],
         "filters": {}
       },
@@ -113,15 +116,42 @@
         0,
         0
       ],
-      "id": "46c14ab9-9437-4ca5-853a-29ecc802dcdf",
+      "id": "41daecfe-0b68-4541-bd7e-359639405fe1",
       "name": "ClickUp Trigger",
       "webhookId": "da5eff5c-9964-4232-be11-2c71bd6cf02e",
       "credentials": {
-        "clickUpOAuth2Api": {
-          "id": "xIpPhCLCPEjO81L2",
-          "name": "ClickUp account 2"
+        "clickUpApi": {
+          "id": "7BS4o0KUfCnWFXow",
+          "name": "Foxtrot"
         }
       }
+    },
+    {
+      "parameters": {
+        "amount": 30
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        656,
+        208
+      ],
+      "id": "08905c18-850e-429a-b2b8-100575b8fb3a",
+      "name": "Wait",
+      "webhookId": "c98e5300-5c32-47a2-8dd1-7b3ce3ee32a5"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        592,
+        0
+      ],
+      "id": "e7f2eff8-a3a2-44c2-a247-6648c87f3b51",
+      "name": "Loop Over Items"
     }
   ],
   "pinData": {},
@@ -141,7 +171,7 @@
       "main": [
         [
           {
-            "node": "Send a message",
+            "node": "Loop Over Items",
             "type": "main",
             "index": 0
           }
@@ -158,6 +188,40 @@
           }
         ]
       ]
+    },
+    "Send a message": {
+      "main": [
+        []
+      ]
+    },
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     }
   },
   "active": true,
@@ -165,11 +229,11 @@
     "executionOrder": "v1",
     "availableInMCP": false
   },
-  "versionId": "02077f57-4d0e-4a1d-8bfd-f7f507ad8930",
+  "versionId": "9ee7f3c4-1d4d-4b78-abe2-afe6333f10d1",
   "meta": {
     "templateCredsSetupCompleted": true,
-    "instanceId": "aa77417e303b158c532eee5daf2ce4d1b7bbc8d1ddd0fd3eacea8642eeb9c375"
+    "instanceId": "4ab2b104b33744732db6e5605c6b2ff26da2cb69f5bec97d8de9d94bdcf5b93d"
   },
-  "id": "Cl0BtV0B-Rjr4w-lP-0In",
+  "id": "cwYNqGfEHWuH6F-pZWGG4",
   "tags": []
 }
