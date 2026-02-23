@@ -1,0 +1,275 @@
+{
+  "name": "ClickupFindTask",
+  "nodes": [
+    {
+      "parameters": {
+        "type": "direct-message",
+        "pattern": "regex",
+        "value": ".*",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-discord-trigger.discordTrigger",
+      "typeVersion": 1,
+      "position": [
+        -912,
+        -208
+      ],
+      "id": "0768882a-1f9f-48c3-a7a5-253461926343",
+      "name": "Discord Trigger",
+      "credentials": {
+        "discordBotTriggerApi": {
+          "id": "WNXCknsSF7BsDRfv",
+          "name": "Discord Bot Trigger account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=User ClickUpID: {{ $('Get row(s) in sheet').first().json.ClickUpID }}\nUser Message: {{ $('Discord Trigger').item.json.content }}",
+        "options": {
+          "systemMessage": "=You are a specialized ClickUp Assistant for our team. Your goal is to help users manage their tasks and stay organized.\n\nYour Tone: Helpful, professional, and concise.\n\nYour Role:\n1. Answer questions about task management.\n2. If a user asks about their tasks, acknowledge you are checking ClickUp (even if the integration is still being set up).\n3. Keep responses short enough for a Discord message.\n\nInstructions for fetching tasks:\n- When a user asks you to fetch their tasks, tell them to wait.\n- Call the ClickUp tool using the \"User ClickUpID\" provided to you in the prompt.\n- Once all tasks are received from the tool, summarize and send them to the person."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        -384,
+        -208
+      ],
+      "id": "1dcd4170-32d6-4f0c-aeeb-9e310af41f10",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "resource": "message",
+        "guildId": {
+          "__rl": true,
+          "value": "930299818440540171",
+          "mode": "list",
+          "cachedResultName": "Ahmad Amjad's server",
+          "cachedResultUrl": "https://discord.com/channels/930299818440540171"
+        },
+        "sendTo": "user",
+        "userId": {
+          "__rl": true,
+          "value": "={{ $('Discord Trigger').item.json.authorId }}",
+          "mode": "id"
+        },
+        "content": "={{ $json.output }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.discord",
+      "typeVersion": 2,
+      "position": [
+        -96,
+        -224
+      ],
+      "id": "17e75186-6a77-4c9a-a4eb-10cf028dec34",
+      "name": "Send a message",
+      "webhookId": "7071bf1a-51c4-4316-8805-eb48785f3c20",
+      "credentials": {
+        "discordBotApi": {
+          "id": "hJb4171ULin4wUSl",
+          "name": "Discord Bot account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1XRrCoTOCL6hleeIXYszrScTZs80YOitZZ8D7YCww5R0",
+          "mode": "list",
+          "cachedResultName": "Foxtrot-Discord-IDs",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1XRrCoTOCL6hleeIXYszrScTZs80YOitZZ8D7YCww5R0/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1XRrCoTOCL6hleeIXYszrScTZs80YOitZZ8D7YCww5R0/edit#gid=0"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "UserID",
+              "lookupValue": "={{ $json.authorId }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -688,
+        -208
+      ],
+      "id": "79c0a79d-faad-41e4-8cf9-da6fe9f3b7d8",
+      "name": "Get row(s) in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "1GmWYDKyggEBAWuE",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "=The ClickUp ID of the user to retrieve assigned tasks for. Pass the User ClickUpID provided in the prompt.",
+        "operation": "getAll",
+        "team": "90182405322",
+        "space": "90189631080",
+        "folderless": true,
+        "list": "=",
+        "filters": {
+          "assignees": "={{ [$json.ClickUpID] }}"
+        }
+      },
+      "type": "n8n-nodes-base.clickUpTool",
+      "typeVersion": 1,
+      "position": [
+        -256,
+        96
+      ],
+      "id": "57905d8e-e18b-469c-8782-78b3d37705d1",
+      "name": "Get many tasks in ClickUp",
+      "credentials": {
+        "clickUpApi": {
+          "id": "h8uGHswZggddN7Ox",
+          "name": "Foxtrot"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        -528,
+        0
+      ],
+      "id": "633db550-843d-4cf1-b619-8b35382ccc4e",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "NEdu1WtrHxvqUs25",
+          "name": "Google Gemini(PaLM) Api account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "toolDescription": "Tool to fetch all tasks for a specific user across the entire workspace. Pass the User ClickUpID as assignee_id.",
+        "url": "https://api.clickup.com/api/v2/team/90181285101/task",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "clickUpApi",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "assignees[]",
+              "value": "={{ $json.ClickUpID }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.4,
+      "position": [
+        -240,
+        0
+      ],
+      "id": "b2e7f2f8-c126-447a-928c-1389dfb99b3f",
+      "name": "HTTP Request",
+      "credentials": {
+        "clickUpApi": {
+          "id": "h8uGHswZggddN7Ox",
+          "name": "Foxtrot"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Discord Trigger": {
+      "main": [
+        [
+          {
+            "node": "Get row(s) in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get many tasks in ClickUp": {
+      "ai_tool": [
+        []
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "96b5388b-b457-4606-8e1e-c8f8abd3caca",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "4b236d6a0553c9e875e34c327be292e58e9d17db4065ace6cec462abff30df1b"
+  },
+  "id": "nitOcPOMJFD9KNHp",
+  "tags": []
+}
