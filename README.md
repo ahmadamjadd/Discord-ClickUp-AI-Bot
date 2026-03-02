@@ -1,4 +1,4 @@
-# Foxtrot ClickUp-Discord Integration
+# Discord-Clickup-Bot
 
 A comprehensive n8n automation solution that bridges ClickUp task management with Discord communication for Team Foxtrot. This integration enables team members to access their ClickUp tasks directly through Discord and receive instant notifications when new tasks are assigned.
 
