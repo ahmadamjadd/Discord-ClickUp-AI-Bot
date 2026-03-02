@@ -1,0 +1,320 @@
+{
+  "name": "Discorbot_agent",
+  "nodes": [
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        -464,
+        0
+      ],
+      "id": "633db550-843d-4cf1-b619-8b35382ccc4e",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "5R5dYDIkf2Z69dPJ",
+          "name": "Foxtrot"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "type": "direct-message",
+        "pattern": "regex",
+        "value": ".*",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-discord-trigger.discordTrigger",
+      "typeVersion": 1,
+      "position": [
+        -944,
+        -224
+      ],
+      "id": "0768882a-1f9f-48c3-a7a5-253461926343",
+      "name": "On Discord DM",
+      "credentials": {
+        "discordBotTriggerApi": {
+          "id": "WNXCknsSF7BsDRfv",
+          "name": "Discord Bot Trigger account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "toolDescription": "Tool to fetch all tasks for a specific user across the entire workspace. Pass the User ClickUpID as assignee_id.",
+        "url": "https://api.clickup.com/api/v2/team/90181285101/task",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "clickUpApi",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "assignees[]",
+              "value": "={{ $json['Click Up ID'] }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.4,
+      "position": [
+        -320,
+        0
+      ],
+      "id": "b2e7f2f8-c126-447a-928c-1389dfb99b3f",
+      "name": "ClickUp Task Fetcher (Tool)",
+      "credentials": {
+        "clickUpApi": {
+          "id": "igKkmgEy0KCAik7Y",
+          "name": "Foxtrot"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=User ClickUpID: {{ $json['Click Up ID'] }}\nUser Message: {{ $('On Discord DM').item.json.content }}",
+        "options": {
+          "systemMessage": "=You are a helpful AI assistant for our team. Your primary role is to act as a normal conversational chatbot. You can answer general questions, provide explanations, assist with writing, and help with productivity or technical queries. Your tone should always be helpful, professional, and concise. Keep responses suitable for a Discord message unless more detail is clearly needed.\n\nYou also have access to ClickUp tools, but you should only use them when explicitly required. If a user asks about their ClickUp tasks, such as requesting to see their tasks, pending tasks, or anything assigned to them, immediately use the ClickUp tool with the “User ClickUpID” provided in the prompt. Do not tell the user to wait. Once the tasks are retrieved, present them in a clean, well-formatted structure that includes proper details such as task name, status, and any other relevant information. Keep the output organized and easy to read.\n\nIf the user message is unrelated to ClickUp tasks, do not use any ClickUp tools and respond like a normal chatbot. Never mention internal tool names or technical implementation details in your responses."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        -464,
+        -224
+      ],
+      "id": "1dcd4170-32d6-4f0c-aeeb-9e310af41f10",
+      "name": "Discord Agent"
+    },
+    {
+      "parameters": {
+        "resource": "message",
+        "guildId": {
+          "__rl": true,
+          "value": "930299818440540171",
+          "mode": "list",
+          "cachedResultName": "Ahmad Amjad's server",
+          "cachedResultUrl": "https://discord.com/channels/930299818440540171"
+        },
+        "sendTo": "user",
+        "userId": {
+          "__rl": true,
+          "value": "={{ $('On Discord DM').item.json.authorId }}",
+          "mode": "id"
+        },
+        "content": "={{ $json.output }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.discord",
+      "typeVersion": 2,
+      "position": [
+        -80,
+        -224
+      ],
+      "id": "17e75186-6a77-4c9a-a4eb-10cf028dec34",
+      "name": "Reply on Discord",
+      "webhookId": "7071bf1a-51c4-4316-8805-eb48785f3c20",
+      "credentials": {
+        "discordBotApi": {
+          "id": "hJb4171ULin4wUSl",
+          "name": "Discord Bot account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "**1. Listen for Chat**\nTriggers whenever a team member sends a Direct Message to the Foxtrot bot on Discord.",
+        "height": 304,
+        "width": 272,
+        "color": 7
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1024,
+        -352
+      ],
+      "typeVersion": 1,
+      "id": "b64788ef-9bdd-420d-ace6-ffc9f399f0ed",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "content": "**2. Identify User**\nTakes the Discord ID of the sender and cross-references the \"Foxtrot-IDs\" sheet to find their matching ClickUp ID so the AI knows who it is talking to.",
+        "height": 304,
+        "width": 224,
+        "color": 2
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -752,
+        -352
+      ],
+      "typeVersion": 1,
+      "id": "e55d8816-4d51-4748-b2a0-49af802ca8f6",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1VOvvg9PVctkx0E9JYvVoN15AtCayLCvYNCR5vP_gqs8",
+          "mode": "list",
+          "cachedResultName": "Foxtrot-IDs",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1VOvvg9PVctkx0E9JYvVoN15AtCayLCvYNCR5vP_gqs8/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1981273618,
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1VOvvg9PVctkx0E9JYvVoN15AtCayLCvYNCR5vP_gqs8/edit#gid=1981273618"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "Discord User ID",
+              "lookupValue": "={{ $json.authorId }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -688,
+        -224
+      ],
+      "id": "79c0a79d-faad-41e4-8cf9-da6fe9f3b7d8",
+      "name": "Lookup ClickUp ID (Sheets)",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "lLZCdbGj4rwLByR8",
+          "name": "Foxtrot"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "**3. The AI Brain & Tools**\nThis cluster powers the smart assistant:\n* **The Agent (Manager):** Analyzes the user's message and decides the best course of action.\n* **Gemini (Brain):** Provides the conversational intelligence and reasoning.\n* **HTTP Request (Tool):** Acts as the AI's \"hands,\" allowing it to autonomously query the ClickUp API to fetch the user's tasks when requested.",
+        "height": 624,
+        "width": 368,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -528,
+        -432
+      ],
+      "typeVersion": 1,
+      "id": "6d2ce78c-341f-41e7-bccd-b00eb0df5e31",
+      "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "content": "**4. Send AI Response**\nSends the agent's final compiled answer (or task list) back to the team member in their Discord DM thread.",
+        "height": 288,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -160,
+        -352
+      ],
+      "typeVersion": 1,
+      "id": "56c9f1fa-7e17-4ede-9926-9a6cbc0579ed",
+      "name": "Sticky Note3"
+    },
+    {
+      "parameters": {
+        "content": "## 🧠 Foxtrot AI Chatbot (Agentic RAG)\n**Purpose:** A conversational Discord bot that can answer team questions and fetch personal ClickUp tasks on demand.\n**How it works:** When a user DMs the bot, the workflow looks up their specific ClickUp ID via Google Sheets. It then passes the message to a Gemini-powered Agent. The Agent acts as a normal chatbot unless the user asks about their tasks, in which case it autonomously triggers the ClickUp API tool, formats the tasks nicely, and replies in Discord.",
+        "height": 192,
+        "width": 528
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1088,
+        -576
+      ],
+      "typeVersion": 1,
+      "id": "7f32e47d-7c6e-42f4-8fd1-f22cbf62aede",
+      "name": "Sticky Note4"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Discord Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "On Discord DM": {
+      "main": [
+        [
+          {
+            "node": "Lookup ClickUp ID (Sheets)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ClickUp Task Fetcher (Tool)": {
+      "ai_tool": [
+        [
+          {
+            "node": "Discord Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Discord Agent": {
+      "main": [
+        [
+          {
+            "node": "Reply on Discord",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Lookup ClickUp ID (Sheets)": {
+      "main": [
+        [
+          {
+            "node": "Discord Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "82a050aa-2a12-48a3-a3ac-0841e8c930b3",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "4b236d6a0553c9e875e34c327be292e58e9d17db4065ace6cec462abff30df1b"
+  },
+  "id": "nitOcPOMJFD9KNHp",
+  "tags": []
+}

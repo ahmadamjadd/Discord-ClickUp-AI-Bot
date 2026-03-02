@@ -1,0 +1,252 @@
+{
+  "name": "TaskCreation",
+  "nodes": [
+    {
+      "parameters": {
+        "team": "90182405322",
+        "events": [
+          "taskCreated"
+        ],
+        "filters": {}
+      },
+      "type": "n8n-nodes-base.clickUpTrigger",
+      "typeVersion": 1,
+      "position": [
+        -16,
+        0
+      ],
+      "id": "e1df7c2f-f7cb-4c79-a937-a7fd1f255a9a",
+      "name": "On New ClickUp Task",
+      "webhookId": "a7ef3eca-48bc-4466-b040-7714cfd59511",
+      "credentials": {
+        "clickUpApi": {
+          "id": "igKkmgEy0KCAik7Y",
+          "name": "Foxtrot"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1XRrCoTOCL6hleeIXYszrScTZs80YOitZZ8D7YCww5R0",
+          "mode": "list",
+          "cachedResultName": "Foxtrot-Discord-IDs",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1XRrCoTOCL6hleeIXYszrScTZs80YOitZZ8D7YCww5R0/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1XRrCoTOCL6hleeIXYszrScTZs80YOitZZ8D7YCww5R0/edit#gid=0"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "Email",
+              "lookupValue": "={{ $json.history_items[0].user.email }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        208,
+        0
+      ],
+      "id": "530ef168-fb91-4757-a29f-2affda67af0e",
+      "name": "Lookup Discord ID (Sheets)",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "lLZCdbGj4rwLByR8",
+          "name": "Foxtrot"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "id": "={{ $('On New ClickUp Task').item.json.task_id }}",
+        "includeMarkdownDescription": true
+      },
+      "type": "n8n-nodes-base.clickUp",
+      "typeVersion": 1,
+      "position": [
+        432,
+        0
+      ],
+      "id": "716ac761-8b32-455a-b068-aeaee6794fea",
+      "name": "Fetch Full Task Details",
+      "credentials": {
+        "clickUpApi": {
+          "id": "igKkmgEy0KCAik7Y",
+          "name": "Foxtrot"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "message",
+        "guildId": {
+          "__rl": true,
+          "value": "930299818440540171",
+          "mode": "list",
+          "cachedResultName": "Ahmad Amjad's server",
+          "cachedResultUrl": "https://discord.com/channels/930299818440540171"
+        },
+        "sendTo": "user",
+        "userId": {
+          "__rl": true,
+          "value": "={{ $('Lookup Discord ID (Sheets)').item.json['Discord User ID'] }}",
+          "mode": "id"
+        },
+        "content": "=New Task Assigned\n\nHello {{ $('Fetch Full Task Details').item.json.assignees[0].username }},\n\nA new task has been created and assigned to you.\n\nTask Name: {{ $('Fetch Full Task Details').item.json.name }}\nStatus: {{ $('Fetch Full Task Details').item.json.status.status }}\n\nDescription:\n{{ $('Fetch Full Task Details').item.json.markdown_description || $('Fetch Full Task Details').item.json.description || 'No description provided.' }}\n\nView Task:\nhttps://app.clickup.com/t/{{ $('Fetch Full Task Details').item.json.id }}\n\nPlease review the task and proceed accordingly.",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.discord",
+      "typeVersion": 2,
+      "position": [
+        672,
+        0
+      ],
+      "id": "24bbb00c-52e7-46f5-9e9c-c925a9b19507",
+      "name": "Send Discord DM",
+      "webhookId": "5204f43c-b6d2-46ba-b085-5613a05b2d60",
+      "credentials": {
+        "discordBotApi": {
+          "id": "hJb4171ULin4wUSl",
+          "name": "Discord Bot account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "**4. Notify Team Member**\nSends a direct message to the specific user on Discord letting them know a new task has been assigned or created for them.",
+        "height": 304,
+        "color": 7
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        608,
+        -128
+      ],
+      "typeVersion": 1,
+      "id": "b5c8eaee-5641-494d-b0e1-fa6842c2cd1d",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "content": "**3. Grab Description**\nThe trigger doesn't give us the full text, so this node fetches the complete task details (including the Markdown description) using the Task ID.",
+        "height": 320,
+        "color": 2
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        368,
+        -144
+      ],
+      "typeVersion": 1,
+      "id": "94129f46-c705-4212-a517-2bc471a87b74",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "content": "**2. Cross-Reference User**\nTakes the email of the person from ClickUp and searches the \"Foxtrot-Discord-IDs\" sheet to find their matching Discord User ID.",
+        "height": 320,
+        "width": 224,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        144,
+        -144
+      ],
+      "typeVersion": 1,
+      "id": "856d6b41-a54c-4045-82a7-dcbe028b57c2",
+      "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "content": "**1. Listen for Tasks**\nTriggers automatically whenever a new task is created in the Foxtrot ClickUp workspace.",
+        "height": 288,
+        "width": 224,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -80,
+        -112
+      ],
+      "typeVersion": 1,
+      "id": "e9d9194f-ba3f-46c4-a774-a574206703db",
+      "name": "Sticky Note3"
+    },
+    {
+      "parameters": {
+        "content": "## 🤖 ClickUp to Discord Task Notifier\n**Purpose:** Automates direct message notifications for the team. \n**How it works:** When a new task is created in ClickUp, this workflow matches the user's email to their Discord ID using a Google Sheet, grabs the full task description, and sends them a direct message on Discord so they never miss an assignment.",
+        "width": 672,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -80,
+        -320
+      ],
+      "typeVersion": 1,
+      "id": "c4be3d9f-c212-429b-a56c-8daa12834aca",
+      "name": "Sticky Note4"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "On New ClickUp Task": {
+      "main": [
+        [
+          {
+            "node": "Lookup Discord ID (Sheets)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Lookup Discord ID (Sheets)": {
+      "main": [
+        [
+          {
+            "node": "Fetch Full Task Details",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Full Task Details": {
+      "main": [
+        [
+          {
+            "node": "Send Discord DM",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "bbe3ab2e-1a16-43ce-92f4-7553cdaefe67",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "4b236d6a0553c9e875e34c327be292e58e9d17db4065ace6cec462abff30df1b"
+  },
+  "id": "fOgTdM9y76BOcgJp",
+  "tags": []
+}
